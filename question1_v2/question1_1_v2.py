@@ -212,8 +212,8 @@ def show_points(point_list, origin_index_list, noised_index_list, title=None, in
     #     plt.ylim((-3, 3))
     #     if info is not None:
     #         plt.annotate(info, xy=(-2.5, -2.5))
-    plt.xlim(-math.sqrt(ps) * 3, math.sqrt(ps) * 3)
-    plt.ylim(-math.sqrt(ps) * 3, math.sqrt(ps) * 3)
+    plt.xlim(-math.sqrt(ps) * 2, math.sqrt(ps) * 2)
+    plt.ylim(-math.sqrt(ps) * 2, math.sqrt(ps) * 2)
     if title is not None:
         plt.savefig(title + ".png", dpi=600)
     plt.clf()
