@@ -134,7 +134,6 @@ if __name__ == '__main__':
     # for item in all_road_info_list:
     #     print(item)
     while len(cur_road_info_list) < num_links:
-        max_value_road = get_max_value_road(all_road_info_list)
         print('当前连接个数为:', len(cur_road_info_list))
         if_add_one_link = False  # 如果一次循环中没有加入任何的中转节点连接，则加入一条直接连接的边
         city_tuple_list = city_pair_population_tuple_list[0]
@@ -217,7 +216,7 @@ if __name__ == '__main__':
                         break
         if not if_add_one_link:
             ab_road = get_road_from_list(tmp_a, tmp_b, all_road_info_list)
-
+            max_value_road = get_max_value_road(all_road_info_list)
             if compute_value(ab_road) > compute_value(max_value_road):
                 print("加入", city_list[ab_road.start], '-', city_list[ab_road.end], '这条连接(直接连接)\n')
                 # 在城市对删除这一对
