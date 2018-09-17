@@ -41,7 +41,7 @@ def get_max_value_road(road_list):
 
 def get_road_from_list(x, y, road_list):
     for one_road in road_list:
-        if item.start == x and item.end == y:
+        if one_road.start == x and one_road.end == y:
             return one_road
 
 
@@ -95,6 +95,7 @@ if __name__ == '__main__':
                     part_b.remove(max_value_road.end)
                 elif max_value_road.start in part_b:
                     part_a.append(max_value_road.start)
+
                     part_b.remove(max_value_road.start)
                 cur_road_info_list.append(max_value_road)
                 all_road_info_list.remove(max_value_road)

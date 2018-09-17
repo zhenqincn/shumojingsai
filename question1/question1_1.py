@@ -96,7 +96,6 @@ def get_source_data(num_standard_points):
         sk2 = None
     return base_points, base_points_info, sk2
 
-
 def nearest(point, targets):
     """
     计算距离最近的点

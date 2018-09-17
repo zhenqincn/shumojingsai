@@ -5,3 +5,6 @@ class Road(object):
         self.weight = weight
         self.capacity = capacity
         self.population = population
+
+    def __str__(self):
+        return '(' + str(self.start) + ', ' + str(self.end) + ')'
