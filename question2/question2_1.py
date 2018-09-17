@@ -46,7 +46,7 @@ def get_road_from_list(x, y, road_list):
 
 
 if __name__ == '__main__':
-    num_links = 16
+    num_links = 33
 
     distance_matrix, city_list = read_distance_from_excel()
     # print(city_list)

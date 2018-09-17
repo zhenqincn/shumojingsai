@@ -129,11 +129,17 @@ if __name__ == '__main__':
         print(city_list[item.start], city_list[item.end], compute_value(item))
     total_value = sum([compute_value(item) for item in cur_road_info_list])
     print(len(cur_road_info_list), "条光纤的总价值之和为", total_value)
+
     # print("邻接矩阵为:")
     # print(np.array(adj_matrix))
     # for item in all_road_info_list:
     #     print(item)
     while len(cur_road_info_list) < num_links:
+        # 获得通过直接连接得到的当前价值最高的一条路
+        max_value_road = get_max_value_road(all_road_info_list)
+        # 计算得到通过直接连接得到的当前价值最高的一条路的价值
+        max_dir_link_value = compute_value(max_value_road)
+
         print('当前连接个数为:', len(cur_road_info_list))
         if_add_one_link = False  # 如果一次循环中没有加入任何的中转节点连接，则加入一条直接连接的边
         city_tuple_list = city_pair_population_tuple_list[0]
@@ -174,22 +180,32 @@ if __name__ == '__main__':
                     if compute_joint_population(city_population_list[tmp_a],
                                                 city_population_list[tmp_b]) > \
                             compute_joint_population(city_population_list[tmp_a], city_population_list[middle]):
+                        ''''''
                         # 从所有的路的列表中获得a和middle之间的路的信息
-                        road = get_road_from_list(tmp_a, middle, all_road_info_list)
-                        # 当前路列表加入一条
-                        cur_road_info_list.append(road)
-                        # 全部路列表中减去一条
-                        all_road_info_list.remove(road)
-                        print("加入", city_list[road.start], '-', city_list[road.end], '这条连接(有中继)\n')
-                        adj_matrix[tmp_a][middle] = 1
-                        adj_matrix[middle][tmp_a] = 1
-                        # 加入了一条边，删除这条边两端的城市组成的城市对
-                        city_pair_population_tuple_list.remove(city_tuple_list)
-                        triple_points_road_list.append([tmp_a, middle, tmp_b])
-                        # print('triple', triple_points_road_list)
-                        # 是否添加了一条边的标志位置为True
-                        if_add_one_link = True
-                        break
+                        road_a_middle = get_road_from_list(tmp_a, middle, all_road_info_list)
+                        # 可以给ab分配的最大容量为a, middle 和 b, middle之间的最小容量
+                        max_capacity = min(get_capacity(distance_matrix[tmp_a][middle]),
+                                           get_capacity(distance_matrix[tmp_b][middle]))
+                        value_added = max_capacity * 1 * math.sqrt(
+                            city_population_list[tmp_a] * city_population_list[tmp_b]) - compute_value(road_a_middle)
+                        ''''''
+                        if value_added > max_dir_link_value:
+                            # 当前路列表加入一条
+                            total_value += value_added
+                            cur_road_info_list.append(road_a_middle)
+                            # 全部路列表中减去一条
+                            all_road_info_list.remove(road_a_middle)
+                            print("加入", city_list[road_a_middle.start], '-', city_list[road_a_middle.end], '这条连接(中继)\n')
+                            adj_matrix[tmp_a][middle] = 1
+                            adj_matrix[middle][tmp_a] = 1
+                            # 加入了一条边，删除这条边两端的城市组成的城市对
+                            city_pair_population_tuple_list.remove(city_tuple_list)
+                            triple_points_road_list.append([tmp_a, middle, tmp_b])
+                            # print('triple', triple_points_road_list)
+                            # 是否添加了一条边的标志位置为True
+                            if_add_one_link = True
+                            # 停止for middle in range(12):
+                            break
             # 中间节点和a有直接连接，和b没有直接连接
             if adj_matrix[tmp_a][middle] == 1 and adj_matrix[tmp_b][middle] != 1:
                 # a和middle、b和middle的直线距离级别必须都高于a和b之间的距离级别，才有加边的必要
@@ -199,38 +215,37 @@ if __name__ == '__main__':
                                                 city_population_list[tmp_b]) > \
                             compute_joint_population(city_population_list[tmp_b], city_population_list[middle]):
                         # 从所有的路的节点中获取middle和b之间的路的权重
-                        road = get_road_from_list(tmp_b, middle, all_road_info_list)
-                        # 当前路列表加入一条
-                        cur_road_info_list.append(road)
-                        # 全部路的列表删除这一条
-                        all_road_info_list.remove(road)
-                        print("加入", city_list[road.start], '-', city_list[road.end], '这条连接(有中继)\n')
-                        adj_matrix[tmp_b][middle] = 1
-                        adj_matrix[middle][tmp_b] = 1
-                        # 是否添加了一条边的标志位置为True
-                        triple_points_road_list.append([tmp_a, middle, tmp_b])
-                        # print('triple', triple_points_road_list)
-                        if_add_one_link = True
-                        # 加入了一条边，删除这条边两边的城市对
-                        city_pair_population_tuple_list.remove(city_tuple_list)
-                        break
+                        road_b_middle = get_road_from_list(tmp_b, middle, all_road_info_list)
+                        # 可以给ab分配的最大容量为a, middle 和 b, middle之间的最小容量
+                        max_capacity = min(get_capacity(distance_matrix[tmp_a][middle]),
+                                           get_capacity(distance_matrix[tmp_b][middle]))
+                        value_added = max_capacity * 1 * math.sqrt(
+                            city_population_list[tmp_a] * city_population_list[tmp_b]) - compute_value(road_b_middle)
+                        if value_added > max_dir_link_value:
+                            total_value += value_added
+                            # 当前路列表加入一条
+                            cur_road_info_list.append(road_b_middle)
+                            # 全部路的列表删除这一条
+                            all_road_info_list.remove(road_b_middle)
+                            print("加入", city_list[road_b_middle.start], '-', city_list[road_b_middle.end], '这条连接(中继)\n')
+                            adj_matrix[tmp_b][middle] = 1
+                            adj_matrix[middle][tmp_b] = 1
+                            # 是否添加了一条边的标志位置为True
+                            triple_points_road_list.append([tmp_a, middle, tmp_b])
+                            # print('triple', triple_points_road_list)
+                            # 加入了一条边，删除这条边两边的城市对
+                            city_pair_population_tuple_list.remove(city_tuple_list)
+                            if_add_one_link = True
+                            # 停止for middle in range(12):
+                            break
         if not if_add_one_link:
-            ab_road = get_road_from_list(tmp_a, tmp_b, all_road_info_list)
-            max_value_road = get_max_value_road(all_road_info_list)
-            if compute_value(ab_road) > compute_value(max_value_road):
-                print("加入", city_list[ab_road.start], '-', city_list[ab_road.end], '这条连接(直接连接)\n')
-                # 在城市对删除这一对
-                city_pair_population_tuple_list.remove(city_tuple_list)
-                # 在邻接矩阵中表明这两个点已经连接
-                adj_matrix[ab_road.start][ab_road.end] = 1
-                adj_matrix[ab_road.end][ab_road.start] = 1
-                cur_road_info_list.append(ab_road)
-                all_road_info_list.remove(ab_road)
-            else:
-                print("加入", city_list[max_value_road.start], '-', city_list[max_value_road.end], '这条连接(直接连接)\n')
-                # 在邻接矩阵中表明这两个点已经连接
-                adj_matrix[max_value_road.start][max_value_road.end] = 1
-                adj_matrix[max_value_road.end][max_value_road.start] = 1
-                cur_road_info_list.append(max_value_road)
-                all_road_info_list.remove(max_value_road)
+            total_value += max_dir_link_value
+            print("加入", city_list[max_value_road.start], '-', city_list[max_value_road.end], '这条连接(直接连接)\n')
+            # 在邻接矩阵中表明这两个点已经连接
+            adj_matrix[max_value_road.start][max_value_road.end] = 1
+            adj_matrix[max_value_road.end][max_value_road.start] = 1
+            cur_road_info_list.append(max_value_road)
+            all_road_info_list.remove(max_value_road)
+
     print('\n目前地图中一共有', len(cur_road_info_list), '条边\n')
+    print('总价值为', total_value)
