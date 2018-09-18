@@ -4,6 +4,10 @@ from question2.my_util import read_population_economic_from_excel, read_distance
 from question2.road import Road
 
 
+def compute_joint_gdp(a, b):
+    return math.sqrt(a * b)
+
+
 def compute_joint_population(a, b):
     """
     给出光纤连接的两个区域的人口数，两个区域的联合
@@ -70,7 +74,7 @@ if __name__ == '__main__':
     city_pair_population_tuple_list = []
     for i in range(len(city_population_list)):
         for j in range(i + 1, len(city_population_list)):
-            city_pair_population_tuple_list.append((i, j, math.sqrt(city_population_list[i] * city_population_list[j])))
+            city_pair_population_tuple_list.append((i, j, compute_joint_population(city_population_list[i], city_population_list[j]) * compute_joint_gdp(city_gdp_aver_list[i], city_gdp_aver_list[j])))
     city_pair_population_tuple_list = sorted(city_pair_population_tuple_list, key=lambda pair: pair[2], reverse=True)
     print('城市对信息')
     print(city_pair_population_tuple_list)
@@ -83,16 +87,16 @@ if __name__ == '__main__':
         for j in range(i, 12):
             if i == j:
                 continue
-            # 初始化所有可能的Road，权重设为1，表示不考虑经济状况
-            road = Road(start=i, end=j, weight=1,
+            # 初始化所有可能的Road
+            weight = compute_joint_population(city_gdp_aver_list[i], city_gdp_aver_list[j])
+            road = Road(start=i, end=j, weight=weight,
                         capacity=get_capacity(distance_matrix[i][j]),
                         population=compute_joint_population(city_population_list[i],
                                                             city_population_list[j]),
-                        value=1 * get_capacity(distance_matrix[i][j]) * compute_joint_population(city_population_list[i],
-                                                                                                 city_population_list[j]))
+                        value=weight * get_capacity(distance_matrix[i][j]) * compute_joint_population(city_population_list[i], city_population_list[j]))
             all_road_info_list.append(road)
     print("所有可能的路径:")
-    for item in sorted(all_road_info_list, key=lambda asd: asd.value, reverse=True):
+    for item in sorted(all_road_info_list, key=lambda asd:asd.value, reverse=True):
         print(city_list[item.start], city_list[item.end], item.value)
     # print(len(all_road_info_list))
     # for item in all_road_info_list:
@@ -191,10 +195,10 @@ if __name__ == '__main__':
                         # 可以给ab分配的最大容量为a, middle 和 b, middle之间的最小容量
                         max_capacity = min(get_capacity(distance_matrix[tmp_a][middle]),
                                            get_capacity(distance_matrix[tmp_b][middle]))
-                        value_added = max_capacity * 1 * compute_joint_population(city_population_list[tmp_a],
-                                                                                  city_population_list[tmp_b]) - \
-                                      max_capacity * 1 * compute_joint_population(city_population_list[tmp_b],
-                                                                                  city_population_list[middle])
+                        value_added = max_capacity * compute_joint_gdp(city_gdp_aver_list[tmp_a], city_gdp_aver_list[tmp_b]) * \
+                                      compute_joint_population(city_population_list[tmp_a], city_population_list[tmp_b]) - \
+                                      max_capacity * compute_joint_gdp(city_gdp_aver_list[middle], city_gdp_aver_list[tmp_b]) * \
+                                      compute_joint_population(city_population_list[tmp_b], city_population_list[middle])
                         print('max_dir_link_value', max_dir_link_value)
                         print('value_added', value_added)
                         if value_added > max_dir_link_value:
@@ -229,10 +233,10 @@ if __name__ == '__main__':
                         # 可以给ab分配的最大容量为a, middle 和 b, middle之间的最小容量
                         max_capacity = min(get_capacity(distance_matrix[tmp_a][middle]),
                                            get_capacity(distance_matrix[tmp_b][middle]))
-                        value_added = max_capacity * 1 * math.sqrt(
-                            city_population_list[tmp_a] * city_population_list[tmp_b]) - max_capacity * 1 * math.sqrt(
-                            city_population_list[tmp_a] * city_population_list[middle]
-                        )
+                        value_added = max_capacity * compute_joint_gdp(city_gdp_aver_list[tmp_a], city_gdp_aver_list[tmp_b]) * \
+                                      compute_joint_population(city_population_list[tmp_a], city_population_list[tmp_b]) - \
+                                      max_capacity * compute_joint_gdp(city_gdp_aver_list[tmp_a], city_gdp_aver_list[middle]) * \
+                                      compute_joint_population(city_population_list[tmp_a], city_population_list[middle])
                         print('max_dir_link_value', max_dir_link_value)
                         print('value_added', value_added)
                         if value_added > max_dir_link_value:
@@ -260,7 +264,7 @@ if __name__ == '__main__':
         if not if_add_one_link:
             # 如果没有添加任何的中继节点，选一条尚未添加的，价值最大的边作为直接连接加入网络
             total_value += max_dir_link_value
-            print("没有合适的中间节点，加入", city_list[max_value_road.start], '-', city_list[max_value_road.end], '这条连接(直接连接)\n')
+            print("加入", city_list[max_value_road.start], '-', city_list[max_value_road.end], '这条连接(直接连接)\n')
             # 在邻接矩阵中表明这两个点已经连接
             adj_matrix[max_value_road.start][max_value_road.end] = 1
             adj_matrix[max_value_road.end][max_value_road.start] = 1

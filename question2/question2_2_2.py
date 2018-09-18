@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from question2.my_util import read_population_economic_from_excel, read_distance_from_excel
+from question2.my_util import read_population_economic_from_excel_province, read_distance_from_excel
 from question2.road import Road
 
 
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     triple_points_road_list = []  # 记录三个节点的路径所经过的每一个节点
     distance_matrix, city_list = read_distance_from_excel()
     print(city_list)
-    city_population_list, city_gdp_aver_list = read_population_economic_from_excel()
+    city_population_list, city_gdp_aver_list = read_population_economic_from_excel_province()
     city_pair_population_tuple_list = []
     for i in range(len(city_population_list)):
         for j in range(i + 1, len(city_population_list)):
