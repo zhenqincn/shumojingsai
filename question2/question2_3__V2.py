@@ -8,6 +8,10 @@ from question2.road import Road
 """
 
 
+def compute_joint_gdp(a, b):
+    return math.sqrt(a * b)
+
+
 def compute_joint_population(a, b):
     """
     给出光纤连接的两个区域的人口数，两个区域的联合
@@ -81,11 +85,12 @@ if __name__ == '__main__':
             if i == j:
                 continue
             # 初始化所有可能的Road，权重设为1，表示不考虑经济状况
+            weight_gdp = compute_joint_gdp(city_gdp_aver_list[i], city_gdp_aver_list[j])
             road = Road(start=i, end=j, weight=1,
                         capacity=get_capacity(distance_matrix[i][j]),
                         population=compute_joint_population(city_population_list[i],
                                                             city_population_list[j]),
-                        value=1 * get_capacity(
+                        value=weight_gdp * get_capacity(
                             distance_matrix[i][j]) * compute_joint_population(
                             city_population_list[i], city_population_list[j]))
             all_road_info_list.append(road)
@@ -165,10 +170,10 @@ if __name__ == '__main__':
                         # 可以给ab分配的最大容量为a, middle 和 b, middle之间的最小容量
                         max_capacity = min(get_capacity(distance_matrix[tmp_a][middle]),
                                            get_capacity(distance_matrix[tmp_b][middle]))
-                        value_added = max_capacity * 1 * compute_joint_population(city_population_list[tmp_a],
-                                                                                  city_population_list[
-                                                                                      tmp_b]) - max_capacity * 1 * compute_joint_population(
-                            city_population_list[tmp_b], city_population_list[middle])
+                        value_added = max_capacity * compute_joint_gdp(city_gdp_aver_list[tmp_a], city_gdp_aver_list[tmp_b]) * \
+                                      compute_joint_population(city_population_list[tmp_a], city_population_list[tmp_b]) - \
+                                      max_capacity * compute_joint_gdp(city_gdp_aver_list[tmp_b], city_gdp_aver_list[middle]) * \
+                                      compute_joint_population(city_population_list[tmp_b], city_population_list[middle])
                         # print('max_dir_link_value', max_dir_link_value)
                         # print('value_added', value_added)
                         if value_added > max_add_middle_value:
@@ -182,10 +187,10 @@ if __name__ == '__main__':
                         # 可以给ab分配的最大容量为a, middle 和 b, middle之间的最小容量
                         max_capacity = min(get_capacity(distance_matrix[tmp_a][middle]),
                                            get_capacity(distance_matrix[tmp_b][middle]))
-                        value_added = max_capacity * 1 * math.sqrt(
-                            city_population_list[tmp_a] * city_population_list[tmp_b]) - max_capacity * 1 * math.sqrt(
-                            city_population_list[tmp_a] * city_population_list[middle]
-                        )
+                        value_added = max_capacity * compute_joint_gdp(city_gdp_aver_list[tmp_a], city_gdp_aver_list[tmp_b]) * \
+                                      compute_joint_population(city_population_list[tmp_a], city_population_list[tmp_b]) - \
+                                      max_capacity * compute_joint_gdp(city_gdp_aver_list[tmp_a], city_gdp_aver_list[middle]) * \
+                                      compute_joint_population(city_population_list[tmp_a], city_population_list[middle])
                         # print('max_dir_link_value', max_dir_link_value)
                         # print('value_added', value_added)
                         if value_added > max_add_middle_value:
@@ -207,9 +212,9 @@ if __name__ == '__main__':
             # 在所有路的列表中删除这一条路
             all_road_info_list.remove(max_value_dir_road)
         else:
+            total_value += max_add_middle_value
             print('直接连接的路径最大价值为', max_dir_link_value)
             print('通过中转点连接的路径最大增加价值为', max_add_middle_value)
-            total_value += max_add_middle_value
             cur_road_info_list.append(road_added_for_middle_point)
             all_road_info_list.remove(road_added_for_middle_point)
             shared_capacity_road.value += max_add_middle_value
@@ -220,7 +225,7 @@ if __name__ == '__main__':
             print("这一条中间路径为:(",
                   city_list[cur_abc_for_middle_road[0]], '-',
                   city_list[cur_abc_for_middle_road[1]], '-',
-                  city_list[cur_abc_for_middle_road[2]],
+                  city_list[cur_abc_for_middle_road[2]], '-',
                   ")\n")
 
     print('\n目前地图中一共有', len(cur_road_info_list), '条边\n')

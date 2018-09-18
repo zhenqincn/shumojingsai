@@ -1,7 +1,6 @@
 import numpy as np
 import math
 from question2.my_util import read_population_economic_from_excel, read_distance_from_excel
-from question2.my_util import read_population_economic_from_excel_province
 from question2.road import Road
 
 
@@ -47,11 +46,11 @@ def get_road_from_list(x, y, road_list):
 
 
 if __name__ == '__main__':
-    num_links = 33
+    num_links = 16
 
     distance_matrix, city_list = read_distance_from_excel()
     # print(city_list)
-    city_population_list, city_gdp_aver_list = read_population_economic_from_excel_province()
+    city_population_list, city_gdp_aver_list = read_population_economic_from_excel()
     adj_matrix = [[0 for _ in range(12)] for _ in range(12)]  # 存储整个图的邻接矩阵
 
     all_road_info_list = []             # 保存所有路的信息的列表
@@ -63,7 +62,9 @@ if __name__ == '__main__':
             if i == j:
                 continue
             road = Road(start=i, end=j, weight=1, capacity=get_capacity(distance_matrix[i][j]),
-                        population=compute_population(city_population_list[i], city_population_list[j]))
+                        population=compute_population(city_population_list[i], city_population_list[j]),
+                        value=0)
+            road.value = compute_value(road)
             all_road_info_list.append(road)
     # print("所有可能的路径:")
     # for item in sorted(all_road_info_list, key=lambda asd:compute_value(asd), reverse=True):

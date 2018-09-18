@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from question2.my_util import read_population_economic_from_excel, read_distance_from_excel
+from question2.my_util import read_population_economic_from_excel_province, read_distance_from_excel
 from question2.road import Road
 
 """
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     triple_points_road_list = []  # 记录三个节点的路径所经过的每一个节点
     distance_matrix, city_list = read_distance_from_excel()
     print(city_list)
-    city_population_list, city_gdp_aver_list = read_population_economic_from_excel()
+    city_population_list, city_gdp_aver_list = read_population_economic_from_excel_province()
     adj_matrix = [[0 for _ in range(12)] for _ in range(12)]  # 存储整个图的邻接矩阵
     all_road_info_list = []  # 保存所有路的信息的列表
     cur_road_info_list = []  # 保存当前已有的路的信息的列表
@@ -207,8 +207,6 @@ if __name__ == '__main__':
             # 在所有路的列表中删除这一条路
             all_road_info_list.remove(max_value_dir_road)
         else:
-            print('直接连接的路径最大价值为', max_dir_link_value)
-            print('通过中转点连接的路径最大增加价值为', max_add_middle_value)
             total_value += max_add_middle_value
             cur_road_info_list.append(road_added_for_middle_point)
             all_road_info_list.remove(road_added_for_middle_point)
@@ -220,7 +218,7 @@ if __name__ == '__main__':
             print("这一条中间路径为:(",
                   city_list[cur_abc_for_middle_road[0]], '-',
                   city_list[cur_abc_for_middle_road[1]], '-',
-                  city_list[cur_abc_for_middle_road[2]],
+                  city_list[cur_abc_for_middle_road[2]], '-',
                   ")\n")
 
     print('\n目前地图中一共有', len(cur_road_info_list), '条边\n')
