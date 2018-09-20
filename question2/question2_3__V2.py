@@ -176,6 +176,8 @@ if __name__ == '__main__':
                                       compute_joint_population(city_population_list[tmp_b], city_population_list[middle])
                         # print('max_dir_link_value', max_dir_link_value)
                         # print('value_added', value_added)
+                        if max_capacity < get_capacity(distance_matrix[tmp_a][middle]):
+                            value_added += (get_capacity(distance_matrix[tmp_a][middle]) - max_capacity) * compute_joint_population(city_population_list[tmp_a], city_population_list[middle])
                         if value_added > max_add_middle_value:
                             max_add_middle_value = value_added
                             # 将a和middle之间的通路设为当前可能添加的路径
@@ -193,6 +195,10 @@ if __name__ == '__main__':
                                       compute_joint_population(city_population_list[tmp_a], city_population_list[middle])
                         # print('max_dir_link_value', max_dir_link_value)
                         # print('value_added', value_added)
+                        if max_capacity < get_capacity(distance_matrix[middle][tmp_b]):
+                            value_added += (get_capacity(
+                                distance_matrix[middle][tmp_b]) - max_capacity) * compute_joint_population(
+                                city_population_list[middle], city_population_list[tmp_b])
                         if value_added > max_add_middle_value:
                             max_add_middle_value = value_added
                             # 将b和middle之间的通路设为当前可能添加的路径
@@ -202,8 +208,8 @@ if __name__ == '__main__':
         if road_added_for_middle_point is None:
             # 如果没有添加任何的中继节点，选一条尚未添加的，价值最大的边作为直接连接加入网络
             total_value += max_dir_link_value
-            print("无合适的中间节点，加入(", city_list[max_value_dir_road.start], '-',
-                  city_list[max_value_dir_road.end], ')这条连接\n')
+            print("无合适的中间节点，加入(" + city_list[max_value_dir_road.start] + '-' +
+                  city_list[max_value_dir_road.end] + ')这条连接, 当前网络总价值为' + str(total_value), '\n')
             # 在邻接矩阵中表明这两个点已经连接
             adj_matrix[max_value_dir_road.start][max_value_dir_road.end] = 1
             adj_matrix[max_value_dir_road.end][max_value_dir_road.start] = 1
@@ -226,7 +232,8 @@ if __name__ == '__main__':
                   city_list[cur_abc_for_middle_road[0]], '-',
                   city_list[cur_abc_for_middle_road[1]], '-',
                   city_list[cur_abc_for_middle_road[2]], '-',
-                  ")\n")
+                  ")")
+            print('当前网络总价值为:', total_value, '\n')
 
     print('\n目前地图中一共有', len(cur_road_info_list), '条边\n')
     print('总价值为', total_value)
